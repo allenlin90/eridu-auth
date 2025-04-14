@@ -18,10 +18,11 @@ expand(
 );
 
 const EnvSchema = z.object({
-  BASE_URL: z
+  BETTER_AUTH_URL: z
     .string()
     .url()
     .default(`http://localhost:${process.env.PORT || 3000}`),
+  BETTER_AUTH_SECRET: z.string().min(1),
   NODE_ENV: z.string().default('development'),
   PORT: z.coerce.number().default(3000),
   LOG_LEVEL: z
