@@ -23,6 +23,7 @@ const EnvSchema = z.object({
     .url()
     .default(`http://localhost:${process.env.PORT || 3000}`),
   BETTER_AUTH_SECRET: z.string().min(1),
+  DISABLE_SIGNUP: stringBoolean,
   NODE_ENV: z.string().default('development'),
   PORT: z.coerce.number().default(3000),
   LOG_LEVEL: z

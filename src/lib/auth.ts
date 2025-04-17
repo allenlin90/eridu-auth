@@ -8,6 +8,7 @@ import {
   multiSession,
   organization,
   openAPI,
+  apiKey,
 } from 'better-auth/plugins';
 
 import { db } from '@/db';
@@ -33,7 +34,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
-    disableSignUp: true,
+    disableSignUp: env.DISABLE_SIGNUP,
     requireEmailVerification: true,
     sendResetPassword: async (data, _request) => {
       // TODO: send reset password email
@@ -57,6 +58,7 @@ export const auth = betterAuth({
   },
   plugins: [
     admin(),
+    apiKey(),
     bearer(),
     jwt(), // default to live in 15 mins
     magicLink({
