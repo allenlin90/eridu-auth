@@ -1,11 +1,11 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { adminClient } from 'better-auth/client/plugins';
 import {
   admin,
   bearer,
   jwt,
   magicLink,
+  multiSession,
   organization,
   openAPI,
 } from 'better-auth/plugins';
@@ -29,6 +29,8 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    autoSignIn: true,
+    disableSignUp: true,
     requireEmailVerification: true,
     sendResetPassword: async (data, _request) => {
       // TODO: send reset password email
@@ -52,14 +54,14 @@ export const auth = betterAuth({
   },
   plugins: [
     admin(),
-    adminClient(),
     bearer(),
-    jwt(),
+    jwt(), // default to live in 15 mins
     magicLink({
       sendMagicLink: async (data, _request) => {
         // TODO: enable to send magic link
       },
     }),
+    multiSession(),
     organization({
       allowUserToCreateOrganization: (_user) => {
         // TODO: check if user can create an organization
