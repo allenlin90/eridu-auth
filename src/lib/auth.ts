@@ -11,6 +11,7 @@ import {
 } from 'better-auth/plugins';
 
 import { db } from '@/db';
+import env from '@/env';
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -23,10 +24,12 @@ export const auth = betterAuth({
     },
   },
   advanced: {
+    cookiePrefix: 'eridu_auth',
     crossSubDomainCookies: {
       enabled: true,
     },
   },
+  trustedOrigins: [],
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
