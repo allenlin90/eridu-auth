@@ -43,6 +43,7 @@ CREATE TABLE "invitation" (
 	"organization_id" text NOT NULL,
 	"email" text NOT NULL,
 	"role" text,
+	"team_id" text,
 	"status" text NOT NULL,
 	"expires_at" timestamp NOT NULL,
 	"inviter_id" text NOT NULL
@@ -60,6 +61,7 @@ CREATE TABLE "member" (
 	"organization_id" text NOT NULL,
 	"user_id" text NOT NULL,
 	"role" text NOT NULL,
+	"team_id" text,
 	"created_at" timestamp NOT NULL
 );
 --> statement-breakpoint
@@ -85,6 +87,14 @@ CREATE TABLE "session" (
 	"impersonated_by" text,
 	"active_organization_id" text,
 	CONSTRAINT "session_token_unique" UNIQUE("token")
+);
+--> statement-breakpoint
+CREATE TABLE "team" (
+	"id" text PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"organization_id" text NOT NULL,
+	"created_at" timestamp NOT NULL,
+	"updated_at" timestamp
 );
 --> statement-breakpoint
 CREATE TABLE "user" (
@@ -117,4 +127,5 @@ ALTER TABLE "invitation" ADD CONSTRAINT "invitation_organization_id_organization
 ALTER TABLE "invitation" ADD CONSTRAINT "invitation_inviter_id_user_id_fk" FOREIGN KEY ("inviter_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "member" ADD CONSTRAINT "member_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "member" ADD CONSTRAINT "member_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "team" ADD CONSTRAINT "team_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;
