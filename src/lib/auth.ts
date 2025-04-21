@@ -1,23 +1,32 @@
+import packageJson from "$/package.json" with { type: "json" };
+import type { ExtendedUser } from '@/lib/types';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import {
   admin,
+  apiKey,
   bearer,
   jwt,
   magicLink,
   multiSession,
-  organization,
   openAPI,
-  apiKey,
+  organization,
 } from 'better-auth/plugins';
 
-import { db } from '@/db';
 import env from '@/env';
+import { db } from '@/db';
+import { getUserMemberships } from '@/services/membership.service';
 
 export const auth = betterAuth({
+  appName: packageJson.name,
+  basePath: '/api/auth',
+  baseURL: env.BETTER_AUTH_URL,
   database: drizzleAdapter(db, {
     provider: 'pg',
   }),
+  secret: env.BETTER_AUTH_SECRET,
+  session: {},
+  trustedOrigins: [], // TODO: add client app hosts
   account: {
     accountLinking: {
       enabled: true,
@@ -30,7 +39,6 @@ export const auth = betterAuth({
       enabled: true,
     },
   },
-  trustedOrigins: [],
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
@@ -43,10 +51,19 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: true,
     sendVerificationEmail: async (data, _request) => {
-      // TODO: send verification email to suer after signup
+      // TODO: send verification email to user after signup
     },
   },
   user: {
+    additionalFields: {
+      role: {
+        type: 'string',
+        defaultValue: 'user',
+        required: false,
+        returned: true,
+        input: false,
+      },
+    },
     changeEmail: {
       enabled: true,
       requireEmailVerification: true,
@@ -60,22 +77,40 @@ export const auth = betterAuth({
     admin(),
     apiKey(),
     bearer(),
-    jwt(), // default to live in 15 mins
+    jwt({
+      jwt: {
+        expirationTime: '15m',
+        definePayload: async ({ user }) => {
+          const memberships = await getUserMemberships(user.id);
+
+          // TODO: include required fields for services
+          return {
+            ...user,
+            memberships,
+          };
+        },
+      },
+    }),
     magicLink({
       sendMagicLink: async (data, _request) => {
-        // TODO: enable to send magic link
+        // TODO: send magic link
       },
     }),
     multiSession(),
+    openAPI(),
     organization({
-      allowUserToCreateOrganization: (_user) => {
-        // TODO: check if user can create an organization
-        return true;
+      allowUserToCreateOrganization: (user) => {
+        return (user as ExtendedUser).role === 'admin';
       },
+      cancelPendingInvitationsOnReInvite: true,
+      creatorRole: 'admin',
       sendInvitationEmail: async (_data) => {
         // TODO: send invitation email
       },
+      teams: {
+        enabled: true,
+        allowRemovingAllTeams: false,
+      },
     }),
-    openAPI(),
   ],
 });
