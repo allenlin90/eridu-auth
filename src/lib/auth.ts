@@ -26,7 +26,12 @@ export const auth = betterAuth({
   }),
   secret: env.BETTER_AUTH_SECRET,
   session: {},
-  trustedOrigins: [], // TODO: add client app hosts
+  trustedOrigins: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:4173',
+    'http://localhost:5173',
+  ], // TODO: add client app hosts
   account: {
     accountLinking: {
       enabled: true,
