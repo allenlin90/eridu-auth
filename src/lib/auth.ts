@@ -16,6 +16,7 @@ import {
 import env from '@/env';
 import { db } from '@/db';
 import { getUserMemberships } from '@/services/membership.service';
+import { jwtMembershipSerializer } from "@/serializers/jwt-membership.serializer";
 
 export const auth = betterAuth({
   appName: packageJson.name,
@@ -87,11 +88,12 @@ export const auth = betterAuth({
         expirationTime: '15m',
         definePayload: async ({ user }) => {
           const memberships = await getUserMemberships(user.id);
+          const serializedMembership = memberships.map(jwtMembershipSerializer);
 
           // TODO: include required fields for services
           return {
             ...user,
-            memberships,
+            memberships: serializedMembership,
           };
         },
       },
@@ -114,6 +116,7 @@ export const auth = betterAuth({
       },
       teams: {
         enabled: true,
+        maximumTeams: 10,
         allowRemovingAllTeams: false,
       },
     }),
