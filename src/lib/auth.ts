@@ -86,14 +86,15 @@ export const auth = betterAuth({
     jwt({
       jwt: {
         expirationTime: '15m',
-        definePayload: async ({ user }) => {
+        definePayload: async ({ user, session }) => {
           const memberships = await getUserMemberships(user.id);
-          const serializedMembership = memberships.map(jwtMembershipSerializer);
+          const serializedMemberships = memberships.map(jwtMembershipSerializer);
 
           // TODO: include required fields for services
           return {
             ...user,
-            memberships: serializedMembership,
+            activeOrganizationId: session.activeOrganizationId,
+            memberships: serializedMemberships,
           };
         },
       },
