@@ -49,14 +49,18 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: true,
     disableSignUp: env.DISABLE_SIGNUP,
-    requireEmailVerification: true,
-    sendResetPassword: async (data, _request) => {
+    // requireEmailVerification: true, // TODO: enable when send verification email is enabled
+    sendResetPassword: async (data) => {
       // TODO: send reset password email
     },
   },
   emailVerification: {
     sendOnSignUp: true,
-    sendVerificationEmail: async (data, _request) => {
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async (data) => {
+      if (data.user.emailVerified) {
+        return; // does nothing if the user has verified email
+      }
       // TODO: send verification email to user after signup
     },
   },
@@ -94,6 +98,7 @@ export const auth = betterAuth({
           return {
             ...user,
             activeOrganizationId: session.activeOrganizationId,
+            impersonatedBy: session.impersonatedBy,
             memberships: serializedMemberships,
           };
         },
