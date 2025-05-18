@@ -4,6 +4,7 @@ import { serve } from '@hono/node-server';
 import env from '@/env';
 
 import { cors } from 'hono/cors';
+import { customRouter } from './routes/custom-auth';
 
 const app = createApp();
 
@@ -30,6 +31,8 @@ app.use('*', async (c, next) => {
   c.set('session', session?.session ?? null);
   return next();
 });
+
+app.route('/api/admin', customRouter);
 
 app.on(['POST', 'GET'], '/api/auth/**', (c) => auth.handler(c.req.raw));
 
