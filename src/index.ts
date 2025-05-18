@@ -1,15 +1,11 @@
-import { Hono } from 'hono';
-import { auth } from './lib/auth'; // path to your auth file
+import { auth } from '@/lib/auth'; // path to your auth file
+import { createApp } from '@/lib/create-app';
 import { serve } from '@hono/node-server';
-import { cors } from 'hono/cors';
 import env from '@/env';
 
-const app = new Hono<{
-  Variables: {
-    user: typeof auth.$Infer.Session.user | null;
-    session: typeof auth.$Infer.Session.session | null;
-  };
-}>();
+import { cors } from 'hono/cors';
+
+const app = createApp();
 
 app.use(
   '*',
